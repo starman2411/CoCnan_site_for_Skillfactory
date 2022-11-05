@@ -1,0 +1,170 @@
+{% extends '../base.html' %}
+{% load static %}
+
+{% block content %}
+
+{% load file_tags %}
+{% load posts_tags %}
+{% get_pks posts as posts_pks%}
+
+<div class="container" style="max-width: 70%;">
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Оставьте свой отклик на пост</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form enctype="multipart/form-data" method="post" name="response_form">
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                            <textarea  id="response_text" name="response_text" class="mb-2"></textarea><br>
+                            <button id="button1" class="btn btn-primary btn-block"  type="submit" name="send-response-to-post-1">Отправить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row infinite-container">
+        {% for post in posts %}
+            {% if post.attached_files %}
+                {% is_this_video post.attached_files.0 as is_video %}
+                {% is_this_img post.attached_files.0 as is_img %}
+            {% else %}
+                {% get_false as is_video %}
+                {% get_false as is_img %}
+            {% endif %}
+            <div class="card h-100 shadow border-0 rounded-3 mb-5 infinite-item" name="post-card-{{post.pk}}">
+                <div class="card-body p-4">
+                    <a class="text-decoration-none link-dark stretched-link" href="/main/{{ post.id }}"><div class="h1 card-title mb-3">{{post.title}}</div></a>
+                    {% if is_video%}
+                        <video style="width:100%; height:auto;" autoplay preload muted loop>
+                        <source src="/media/{{ post.attached_files.0 }}" type="video/mp4"></source>
+                        </video>
+                    {% endif %}
+                    {% if is_img%}
+                        <img class="card-img-top mt-2" src="/media/{{ post.attached_files.0 }}" alt="...">
+                    {% endif %}
+                    <p class="card-text mt-2" style="font-size: 24px">{{post.text|truncatewords:200}}</p>
+                </div>
+
+                <div class="card-footer mb-3 pt-0 bg-transparent border-top-0">
+                    <div class="">
+                        <div class="d-flex align-items-center">
+                            <div class="small p-2">
+                                <div class="fw-bold">
+                                    {{post.author}}
+                                </div>
+                                <div class="text-muted">
+                                    {{post.creation_time|date:'d M Y'}}
+                                </div>
+                                <div class="text-muted font-weight-bold mb-2">
+                                    {% for cat in post.category.all %}
+                                        {{ cat.category_name }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <button id="response-button-{{post.pk}}" type="button" class="btn btn-primary response-button ml-auto p-2" data-toggle="modal" data-target="#exampleModal" style="z-index: 2; position: relative;">
+                                Откликнуться
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {%endfor%}
+    </div>
+
+    {% if page_obj.has_next %}
+        <a class="infinite-more-link" href="?page={{ page_obj.next_page_number }}"></a>
+    {% endif %}
+
+    <div class="d-flex justify-content-center" style="display:none;">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">.</span>
+        </div>
+    </div>
+</div>
+
+
+<script src="/static/js/jquery-3.6.1.min.js"></script>
+<script src="/static/js/jquery.waypoints.min.js"></script>
+<script src="/static/js/infinite.min.js"></script>
+
+<script>
+let posts_pks = {{posts_pks}};
+const form = document.forms.namedItem("response_form");
+let response_button = document.getElementById("button1");
+let input_field = document.getElementById("response_text");
+let is_authenticated = "{{ user.is_authenticated }}" == "True";
+
+function send_form(event) {
+    const output = document.querySelector("output");
+    const formData = new FormData(form);
+    const request = new XMLHttpRequest();
+    console.log(response_button.name);
+    request.open("POST", "/main/make_response/" + response_button.name.split('-')[4], true);
+    request.send(formData);
+    event.preventDefault();
+    $('#exampleModal').modal('hide');
+    input_field.value = '';
+}
+
+form.addEventListener("submit",send_form,false);
+
+for (let k = 0; k < posts_pks.length; k++) {
+    console.log(posts_pks[k])
+    let but = document.getElementById("response-button-" + String(posts_pks[k]));
+    but.addEventListener("click", () => {
+    response_button.name = 'send-response-to-post-' + String(posts_pks[k]);
+    if (!is_authenticated) {
+    window.location.href = "../accounts/login/";
+    }
+    ;}
+    )
+    };
+
+var infinite = new Waypoint.Infinite(
+    {
+    element: $('.infinite-container')[0],
+    handler: function(direction) {},
+    offset: 'bottom-in-view',
+
+    onBeforePageLoad: function ()
+        {
+        $('.spinner-border').show();
+        },
+
+    onAfterPageLoad: function ($items)
+        {
+        let arr = [];
+        $('.spinner-border').hide();
+
+        for (let k = 0; k < $items.length; k++)
+            {
+            name = $items[k].getAttribute("name");
+            post_pk = name.split('-')[2];
+            console.log(post_pk);
+            let but = document.getElementById("response-button-" + post_pk);
+            arr.push(post_pk);
+            }
+        for (let k = 0; k < arr.length; k++)
+            {
+            document.getElementById("response-button-" + arr[k]).addEventListener("click", () =>
+                {
+                response_button.name = 'send-response-to-post-' + arr[k];
+                if (!is_authenticated) {
+                    window.location.href = "../accounts/login/";
+                }
+                })
+            }
+        }
+    });
+
+</script>
+
+{% endblock %}

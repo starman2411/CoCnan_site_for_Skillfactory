@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>CoChan</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/favicon.ico' %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <title>Title</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body style="background-color: #04151f;">
+
+<nav class="navbar navbar-expand-lg navbar-dark " style="background-color: #04151f;">
+    <div class="container ">
+        <img class="rounded-circle mr-1" src="{% static 'img/logo.png' %}"   style = "width: 40px" alt="...">
+        <a class="navbar-brand" href="/main/">KoChan</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link active" aria-current="page" href="/main/">Главная</a></li>
+                <li class="nav-item"><a class="nav-link" href="/main/{{user}}/posts">Мои посты</a></li>
+                <li class="nav-item"><a class="nav-link" href="/main/add_post">Создать пост</a></li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link " href="{%url 'accounts:logout'%}">Выход</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link " href="{%url 'accounts:login'%}">Вход</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<header class="py-5 mb-5 bg-image-full" style="background-image: url({% static 'img/background.jpeg' %});">
+    <div class="text-center my-5 ">
+        <img class="img-fluid rounded-circle mb-4" src="{% static 'img/logo.png' %}"   style = "width: 120px" alt="...">
+        <h1 class="text-white fs-3 fw-bolder"> Добро пожаловать на CoChan! </h1>
+        <p class="text-white-50 mb-0">Как 4chan, только кочан</p>
+    </div>
+</header>
+
+{% block content %}
+{% endblock %}
+<br>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+</body>
+</html>

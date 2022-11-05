@@ -1,0 +1,43 @@
+{% extends '../base2.html' %}
+
+{% block content %}
+
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                <div class="card-header"><h3 class="text-center font-weight-light my-4">Редактирование поста</h3></div>
+                <div class="card-body ">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                                {{ form.title.errors }}
+                                <label for="{{ form.title.id_for_label }}">Заголовок:</label>
+                                {{ form.title }}
+                        </div>
+                           <div class="row mb-3">
+                                {{ form.text.errors }}
+                                <label for="{{ form.text.id_for_label }}">Текст:</label>
+                                {{ form.text }}
+                            </div>
+                        <div class="row mb-3">
+                            {{ form.category.errors }}
+                                <label for="{{ form.category.id_for_label }}">Категория:</label>
+                                {{ form.category }}
+                        </div>
+                        <div class="row mb-3">
+                            {{ form.file.errors }}
+                                <label for="{{ form.password2.id_for_label }}">Файлы:</label>
+                                {{ form.files }}
+                        </div>
+                        <div class="mt-4 mb-0">
+                            <input type="submit"  class="btn btn-primary btn-block" value="Create my account">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

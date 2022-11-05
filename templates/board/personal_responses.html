@@ -1,0 +1,112 @@
+{% extends "../base2.html" %}
+{% load responses_tags %}
+{% load static %}
+
+{% block content %}
+
+{% get_responses_texts responses as responses_texts %}
+<link rel="stylesheet" href="{% static 'css/styles2.css' %}">
+
+<div class="container pt-1 mb-5 " style="background-color: white;">
+    <div class="row m-3">
+            <div class="nav flex-row nav-pills" >
+              <a class="nav-link "  href="/main/{{user.username}}/posts" >Мои посты</a>
+              <a class="nav-link active"   href="" role="tab" aria-controls="v-pills-profile" aria-selected="false">Отклики</a>
+            </div>
+    </div>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p class="m-3 text-center" id="response_text"></p>
+                    <div class = 'd-flex justify-content-around'>
+                        <a id="delete-button-modal" href="" class="text-decoration-none  badge bg-danger bg-gradient rounded-pill mb-2 text-white" style="z-index: 2; position: relative;" >Удалить</a>
+                        <a id="confirm-button-modal" href="" class="text-decoration-none  badge bg-info bg-gradient rounded-pill mb-2 text-white mr-1"  style="z-index: 2; position: relative;">Откликнуться</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="dataTable-wrapper dataTable-loading no-footer sortable searchable fixed-columns">
+            <div class="dataTable-top">
+                <div class="dataTable-search w-75">
+                    <form  method="get">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col"><input class="dataTable-input" id="search" type="text" name="search" value="" placeholder="Поиск по заголовку поста"></div>
+                            <div class="col-3"> <input class="dataTable-input"  type="submit" value="Поиск"></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="dataTable-container">
+                <table id="datatablesSimple" class="dataTable-table">
+                    <thead>
+                        <tr>
+                            <th data-sortable="" style="width: 19.6273%;"><a href="#" class="dataTable-sorter">Отправитель</a></th>
+                            <th data-sortable="" style="width: 19.6273%;"><a href="#" class="dataTable-sorter">Пост</a></th>
+                            <th data-sortable="" style="width: 28.9441%;"><a href="#" class="dataTable-sorter">Текст</a></th>
+                            <th data-sortable="" style="width: 15.6522%;"><a href="#" class="dataTable-sorter">Дата</a></th>
+                            <th data-sortable="" style="width: 9.19255%;"><a href="#" class="dataTable-sorter">Статус</a></th>
+                            <th data-sortable="" style="width: 9.19255%;"><a href="#" class="dataTable-sorter">Действия</a></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for response in responses %}
+                            <tr class = 'my-row' id="row-{{response.pk}}">
+                                <td >{{response.sender}}</td>
+                                <td >{{response.post.title | truncatechars:50}}</td>
+                                <td >{{response.text| truncatewords:10 }}</td>
+                                <td >{{response.creation_time| date:'d.m.Y H:m'}}</td>
+                                <td>
+                                    {% if response.is_confirmed %}
+                                        <p class="text-success">Принят</p>
+                                        {% else %}
+                                        <p class="text-secondary">В ожидании</p>
+                                    {% endif %}
+                                </td>
+                                <td >
+                                    <div class = 'd-flex justify-content-around'>
+                                        <a href="/main/{{response.pk}}/accept_response" class="text-decoration-none  badge bg-info bg-gradient rounded-pill mb-2 text-white mr-1" >Откликнуться</a>
+                                        <a href="/main/{{response.pk}}/delete_response" class="text-decoration-none  badge bg-danger bg-gradient rounded-pill mb-2 text-white" >Удалить</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let responses =JSON.parse("{{responses_texts|escapejs}}");
+const rows = document.getElementsByClassName('my-row');
+response_text_p = document.getElementById('response_text');
+confirm_button = document.getElementById('confirm-button-modal');
+delete_button = document.getElementById('delete-button-modal');
+
+for (const pk in responses)
+{
+  row = document.getElementById('row-' + pk);
+   for (let k = 0; k < 5; k++)
+    {
+       row.children[k].addEventListener("click", () =>
+       {
+            confirm_button.href = "/main/" + pk + "/accept_response";
+            delete_button.href = "/main/" + pk + "/delete_response";
+            response_text_p.innerText = responses[pk];
+            $('#exampleModal').modal('show');
+       });
+    }
+}
+
+</script>
+
+{% endblock %}
+

@@ -1,0 +1,64 @@
+{% extends '../base2.html' %}
+{% load static %}
+{% load file_tags %}
+
+{% block content %}
+
+<div class="container px-4 px-lg-5 my-5 " style="background-color: white;">
+    <div class="row gx-4 gx-lg-5 align-items-center">
+        {% if post.attached_files %}
+            <div class="col-md-6">
+                {% for content in post.attached_files%}
+                    {% is_this_video content as is_video %}
+                    {% is_this_img content as is_img %}
+                    <div class="row">
+                        {% if is_video%}
+                            <video style="width:100%; height:auto; margin:10px;"  preload controls>
+                                <source src="/media/{{ content }}" type="video/mp4">
+                            </video>
+                        {% endif %}
+                        {% if is_img%}
+                            <img class="card-img-top mt-2" src="/media/{{ content }}" alt="..." style="width:100%; height:auto; margin:10px;">
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif%}
+
+        <div class="col-md-6 align-self-start mt-2">
+            <h1 class="display-5 fw-bolder">{{post.title}}</h1>
+            <p class="lead">{{post.text}}</p>
+            {% if post.attached_files %}
+                <div class=" mb-2 d-flex justify-content-between">
+                    <div class="text-muted fst-italic">
+                        {% for cat in post.category.all %}
+                            <div class="text-muted font-weight-bold mb-2">
+                                {{ cat.category_name }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-muted font-weight-bold mb-2">
+                        {{post.author}}
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end">
+                    {{post.creation_time|date:'d-M-Y H:m'}}
+                </div>
+            {% else %}
+                <div class="text-muted fst-italic">
+                    {% for cat in post.category.all %}
+                        <div class="text-muted font-weight-bold mb-2">
+                            {{ cat.category_name }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="text-muted font-weight-bold mb-2">{{post.author}}</div>
+                <div class="text-muted font-weight-bold mb-2">
+                    {{post.creation_time|date:'d-M-Y H:m'}}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

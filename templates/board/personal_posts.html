@@ -1,0 +1,120 @@
+{% extends "../base2.html" %}
+{% load static %}
+
+{% block content %}
+
+{% load get_responses_amount%}
+<link rel="stylesheet" href="{% static 'css/styles2.css' %}">
+
+<div class="container pt-1 mb-5 " style="background-color: white;">
+    <div class="row m-3">
+            <div class="nav flex-row nav-pills" >
+              <a class="nav-link active"  href="#v-pills-home" >Мои посты</a>
+              <a class="nav-link "   href="/main/{{user.username}}/responses" role="tab" aria-controls="v-pills-profile" aria-selected="false">Отклики</a>
+            </div>
+    </div>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p class="m-3 text-center">Вы точно хотите удалить пост?</p>
+                    <div class = 'd-flex justify-content-around'>
+                        <a href="" id='button-on-delete' class="text-decoration-none  badge bg-danger bg-gradient rounded-pill mb-2 text-white" >Удалить</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="dataTable-wrapper dataTable-loading no-footer sortable searchable fixed-columns">
+            <div class="dataTable-top">
+                <div class="dataTable-search">
+                    <form  method="get">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col">
+                                <select class="dataTable-selector" name="categories" id="categories">
+                                    <option value=""> Все категории </option>
+                                    {% for cat in categories%}
+                                        <option value="{{cat.category_name}}">{{cat.category_name}} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col">
+                                <input class="dataTable-input" id="search" type="text" name="search" value="" placeholder="">
+                            </div>
+                            <div class="col">
+                                <input class="dataTable-input"  type="submit" value="Поиск">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="dataTable-container">
+                <table id="datatablesSimple" class="dataTable-table">
+                    <thead>
+                        <tr>
+                            <th data-sortable="" style="width: 19.6273%;"><a href="#" class="dataTable-sorter">Заголовок</a></th>
+                            <th data-sortable="" style="width: 28.9441%;"><a href="#" class="dataTable-sorter">Текст</a></th>
+                            <th data-sortable="" style="width: 15.6522%;"><a href="#" class="dataTable-sorter">Дата</a></th>
+                            <th data-sortable="" style="width: 9.19255%;"><a href="#" class="dataTable-sorter">Кол-во откликов</a></th>
+                            <th data-sortable="" style="width: 9.19255%;"><a href="#" class="dataTable-sorter">Действия</a></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for post in posts %}
+                            <tr class = 'my-row' id="row-{{post.pk}}">
+                                <td >{{post.title | truncatechars:50}}</td>
+                                <td >{{post.text| truncatewords:10 }}</td>
+                                <td >{{post.creation_time| date:'d.m.Y H:m'}}</td>
+                                <td >{% get_responses_amount post %}</td>
+                                <td >
+                                    <div class = 'd-flex justify-content-around'>
+                                        <a href="/main/{{post.pk}}/edit" class="text-decoration-none  badge bg-warning bg-gradient rounded-pill mb-2 text-white " >Редактировать</a>
+                                        <button id="delete-button-{{post.pk}}"  class="delete-button text-decoration-none  badge bg-danger bg-gradient rounded-pill mb-2 text-white border-0" >Удалить</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+const rows = document.getElementsByClassName('my-row');
+
+for (let i = 0; i < rows.length; i++)
+{
+    for (let k = 0; k < 4; k++)
+    {
+       rows[i].children[k].addEventListener("click", () =>
+       {
+            window.location.href = "/main/" + rows[i].id.split('-')[1];
+       });
+    }
+}
+
+const buttons = document.getElementsByClassName('delete-button');
+const delete_button = document.getElementById('button-on-delete');
+
+for (let i = 0; i < buttons.length; i++)
+{
+    let pk = buttons[i].id.split('-')[2];
+    console.log(pk);
+    buttons[i].addEventListener("click", () => {
+        delete_button.href = "/main/"+pk+"/delete";
+        $('#exampleModal').modal('show');
+    })
+}
+
+</script>
+
+{% endblock %}
+

@@ -1,0 +1,39 @@
+{% extends "../base2.html" %}
+
+{% block content %}
+
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                <div class="card-header"><h3 class="text-center font-weight-light my-4">Вход</h3></div>
+                <div class="card-body ">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                                {{ form.username.errors }}
+                                <label for="{{ form.username.id_for_label }}">Username or Email:</label>
+                                {{ form.username }}
+                        </div>
+                        <div class="row mb-3">
+                            {{ form.password.errors }}
+                                <label for="{{ form.password.id_for_label }}">Password:</label>
+                                {{ form.password }}
+                        </div>
+
+                        <div class="mt-4 mb-0">
+                            <input type="submit"  class="btn btn-primary btn-block" value="Войти">
+                        </div>
+                        <div class="mt-4 mb-0">
+                            <a href="/accounts/registration">Нет аккаунта? Зарегистрируйся!</a><br>
+                            <a href="/accounts/registration_confirmation">Подтвердить почту</a>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
